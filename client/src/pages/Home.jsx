@@ -5,12 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ArrowRight, Download, Mail, Phone, MapPin, Send } from 'lucide-react';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
-import api from '../services/api';
 
 import { Button } from '../components/ui/Button';
 import { Input, Textarea } from '../components/ui/Input';
 import { ProjectCard } from '../components/ui/ProjectCard';
 import { FadeIn } from '../components/ui/FadeIn';
+
+import { personalInfo, experience, skills, projects } from '../data/content';
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Name is required'),
@@ -19,7 +20,6 @@ const contactSchema = z.object({
 });
 
 const Home = () => {
-  const [projects, setProjects] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
@@ -27,22 +27,13 @@ const Home = () => {
     resolver: zodResolver(contactSchema)
   });
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const { data } = await api.get('/projects');
-        setProjects(data);
-      } catch (error) {
-        console.error('Error fetching projects:', error);
-      }
-    };
-    fetchProjects();
-  }, []);
-
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      await api.post('/messages', data);
+      // Simulate API call for purely frontend version
+      // In a real app without your own backend, you would use Web3Forms, Formspree, or EmailJS here.
+      // Example: await fetch('https://api.web3forms.com/submit', { method: 'POST', body: JSON.stringify({...data, access_key: 'YOUR_ACCESS_KEY'}) })
+      await new Promise(resolve => setTimeout(resolve, 1500));
       setSubmitSuccess(true);
       reset();
       setTimeout(() => setSubmitSuccess(false), 5000);
@@ -56,10 +47,10 @@ const Home = () => {
   return (
     <>
       <Helmet>
-        <title>Ehtasham Faryad — Full-Stack Developer</title>
-        <meta name="description" content="Portfolio of Hafiz Muhammad Ehtasham Faryad — Full-Stack Developer (MERN & Next.js). Building robust APIs and refined interfaces." />
-        <meta property="og:title" content="Ehtasham Faryad — Full-Stack Developer" />
-        <meta property="og:description" content="Full-Stack Developer (MERN & Next.js). Building robust APIs and refined interfaces." />
+        <title>{personalInfo.shortName} — Full-Stack Developer</title>
+        <meta name="description" content={`Portfolio of ${personalInfo.name} — ${personalInfo.title}.`} />
+        <meta property="og:title" content={`${personalInfo.shortName} — Full-Stack Developer`} />
+        <meta property="og:description" content={`${personalInfo.title}.`} />
         <meta property="og:type" content="website" />
       </Helmet>
 
@@ -80,7 +71,7 @@ const Home = () => {
                   <span className="text-accent italic">products.</span>
                 </h1>
                 <p className="text-lg md:text-xl text-muted max-w-xl mb-10 leading-relaxed">
-                  I'm <span className="text-foreground font-medium">Ehtasham Faryad</span> — 
+                  I'm <span className="text-foreground font-medium">{personalInfo.shortName}</span> — 
                   a software engineering student who ships production-grade APIs and polished interfaces.
                 </p>
                 
@@ -95,16 +86,16 @@ const Home = () => {
 
                 {/* Social Row */}
                 <div className="flex items-center gap-4 mt-10 pt-10 border-t border-border">
-                  <a href="mailto:ehtashamfaryad29@gmail.com" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted hover:text-accent hover:border-accent transition-all" aria-label="Email">
+                  <a href={`mailto:${personalInfo.email}`} className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted hover:text-accent hover:border-accent transition-all" aria-label="Email">
                     <Mail size={16} />
                   </a>
-                  <a href="https://github.com/Ehtasham5" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted hover:text-accent hover:border-accent transition-all" aria-label="GitHub">
+                  <a href={personalInfo.github} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted hover:text-accent hover:border-accent transition-all" aria-label="GitHub">
                     <FaGithub size={16} />
                   </a>
-                  <a href="https://linkedin.com/in/ehtashamfaryad" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted hover:text-accent hover:border-accent transition-all" aria-label="LinkedIn">
+                  <a href={personalInfo.linkedin} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted hover:text-accent hover:border-accent transition-all" aria-label="LinkedIn">
                     <FaLinkedin size={16} />
                   </a>
-                  <span className="ml-2 text-sm text-muted">ehtashamfaryad29@gmail.com</span>
+                  <span className="ml-2 text-sm text-muted">{personalInfo.email}</span>
                 </div>
               </FadeIn>
             </div>
@@ -116,7 +107,7 @@ const Home = () => {
                   <div className="absolute inset-0 rounded-full border-2 border-accent/20 translate-x-3 translate-y-3" />
                   <img 
                     src="/profile.jpg" 
-                    alt="Hafiz Muhammad Ehtasham Faryad" 
+                    alt={personalInfo.name} 
                     className="relative w-full aspect-square object-cover object-top rounded-full border-2 border-border shadow-2xl hover:shadow-accent/10 hover:border-accent/30 transition-all duration-700"
                     loading="eager"
                   />
@@ -148,7 +139,7 @@ const Home = () => {
           </FadeIn>
           <div className="flex flex-col">
             {projects.map((project, index) => (
-              <ProjectCard key={project._id} project={project} index={index} />
+              <ProjectCard key={project.id} project={project} index={index} />
             ))}
           </div>
         </section>
@@ -160,26 +151,24 @@ const Home = () => {
               <FadeIn>
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent mb-3">Background</p>
                 <h2 className="font-serif text-4xl md:text-6xl mb-8">About</h2>
-                <p className="text-lg text-foreground/85 leading-relaxed mb-6">
-                  I'm a Software Engineering student at the University of Agriculture, Faisalabad (BS, 2022 – Present). 
-                  I build full-stack products from the ground up: e-commerce platforms, job portals, auth systems, and backend APIs.
-                </p>
-                <p className="text-lg text-foreground/85 leading-relaxed mb-10">
-                  I'm looking for a full-stack internship where I can contribute to real-world products and grow as an engineer.
-                </p>
+                {personalInfo.bio.map((paragraph, idx) => (
+                  <p key={idx} className="text-lg text-foreground/85 leading-relaxed mb-6">
+                    {paragraph}
+                  </p>
+                ))}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-8 border-t border-border">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-8 border-t border-border mt-10">
                   <div>
                     <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted mb-2">Location</h3>
-                    <p className="text-sm">Faisalabad, Pakistan</p>
+                    <p className="text-sm">{personalInfo.location}</p>
                   </div>
                   <div>
                     <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted mb-2">Education</h3>
-                    <p className="text-sm">BS Software Engineering</p>
+                    <p className="text-sm">{personalInfo.education}</p>
                   </div>
                   <div className="sm:col-span-2">
                     <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted mb-2">Coursework</h3>
-                    <p className="text-sm text-foreground/80">DSA · Database Systems · Web Technologies · Machine Learning · Software Design</p>
+                    <p className="text-sm text-foreground/80">{personalInfo.coursework}</p>
                   </div>
                 </div>
               </FadeIn>
@@ -191,30 +180,23 @@ const Home = () => {
               <FadeIn delay={0.2}>
                 <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent mb-3">Career</p>
                 <h2 className="font-serif text-4xl md:text-6xl mb-12">Experience</h2>
-                <div className="relative border-l-2 border-border pl-8 pb-2">
-                  <div className="absolute w-3.5 h-3.5 bg-accent rounded-full -left-[8px] top-1" />
-                  <span className="text-xs font-medium uppercase tracking-[0.15em] text-accent block mb-2">2025</span>
-                  <h3 className="text-xl font-medium mb-1">Frontend Developer Intern</h3>
-                  <p className="text-sm text-muted mb-5">Foodsted · Norway-based, on-site in Faisalabad</p>
-                  <ul className="space-y-3 text-sm text-foreground/80">
-                    <li className="flex gap-3">
-                      <span className="text-accent mt-1.5 shrink-0">›</span>
-                      Built and maintained the client-facing website with HTML, CSS, JavaScript
-                    </li>
-                    <li className="flex gap-3">
-                      <span className="text-accent mt-1.5 shrink-0">›</span>
-                      Implemented responsive UI components following brand guidelines
-                    </li>
-                    <li className="flex gap-3">
-                      <span className="text-accent mt-1.5 shrink-0">›</span>
-                      Improved cross-browser compatibility and page load performance
-                    </li>
-                    <li className="flex gap-3">
-                      <span className="text-accent mt-1.5 shrink-0">›</span>
-                      Gained exposure to professional workflows, version control, and client feedback
-                    </li>
-                  </ul>
-                </div>
+                
+                {experience.map((job, idx) => (
+                  <div key={idx} className="relative border-l-2 border-border pl-8 pb-10 last:pb-2">
+                    <div className="absolute w-3.5 h-3.5 bg-accent rounded-full -left-[8px] top-1" />
+                    <span className="text-xs font-medium uppercase tracking-[0.15em] text-accent block mb-2">{job.year}</span>
+                    <h3 className="text-xl font-medium mb-1">{job.role}</h3>
+                    <p className="text-sm text-muted mb-5">{job.company} · {job.location}</p>
+                    <ul className="space-y-3 text-sm text-foreground/80">
+                      {job.bullets.map((bullet, i) => (
+                        <li key={i} className="flex gap-3">
+                          <span className="text-accent mt-1.5 shrink-0">›</span>
+                          {bullet}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </FadeIn>
             </div>
           </div>
@@ -227,43 +209,16 @@ const Home = () => {
             <h2 className="font-serif text-4xl md:text-6xl mb-16">Skills & Tools</h2>
           </FadeIn>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-12">
-            <FadeIn delay={0.1}>
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted mb-5 pb-3 border-b border-border">Full-Stack</h3>
-              <ul className="space-y-2.5 text-sm text-foreground/85">
-                <li>MongoDB / Mongoose</li>
-                <li>Express.js</li>
-                <li>React.js / Next.js</li>
-                <li>Node.js</li>
-                <li>REST API / JWT / Clerk</li>
-              </ul>
-            </FadeIn>
-            <FadeIn delay={0.2}>
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted mb-5 pb-3 border-b border-border">Languages</h3>
-              <ul className="space-y-2.5 text-sm text-foreground/85">
-                <li>JavaScript (ES6+)</li>
-                <li>TypeScript</li>
-                <li>HTML / CSS</li>
-                <li>Python</li>
-              </ul>
-            </FadeIn>
-            <FadeIn delay={0.3}>
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted mb-5 pb-3 border-b border-border">Databases</h3>
-              <ul className="space-y-2.5 text-sm text-foreground/85">
-                <li>MongoDB</li>
-                <li>SQL / PostgreSQL</li>
-                <li>Supabase</li>
-                <li>Prisma</li>
-              </ul>
-            </FadeIn>
-            <FadeIn delay={0.4}>
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted mb-5 pb-3 border-b border-border">Concepts & Tools</h3>
-              <ul className="space-y-2.5 text-sm text-foreground/85">
-                <li>Auth & RBAC</li>
-                <li>OOP / System Design</li>
-                <li>Git / GitHub / VS Code</li>
-                <li>Postman / Stripe</li>
-              </ul>
-            </FadeIn>
+            {skills.map((skillGroup, index) => (
+              <FadeIn key={skillGroup.category} delay={0.1 * (index + 1)}>
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted mb-5 pb-3 border-b border-border">{skillGroup.category}</h3>
+                <ul className="space-y-2.5 text-sm text-foreground/85">
+                  {skillGroup.items.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              </FadeIn>
+            ))}
           </div>
         </section>
 
@@ -278,29 +233,29 @@ const Home = () => {
               </p>
               
               <div className="space-y-5">
-                <a href="mailto:ehtashamfaryad29@gmail.com" className="group flex items-center gap-4 hover:text-accent transition-colors">
+                <a href={`mailto:${personalInfo.email}`} className="group flex items-center gap-4 hover:text-accent transition-colors">
                   <span className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted group-hover:text-accent group-hover:border-accent transition-all">
                     <Mail size={16} />
                   </span>
-                  <span className="text-sm">ehtashamfaryad29@gmail.com</span>
+                  <span className="text-sm">{personalInfo.email}</span>
                 </a>
-                <a href="tel:+923045280101" className="group flex items-center gap-4 hover:text-accent transition-colors">
+                <a href={`tel:${personalInfo.phone.replace(/[^0-9+]/g, '')}`} className="group flex items-center gap-4 hover:text-accent transition-colors">
                   <span className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted group-hover:text-accent group-hover:border-accent transition-all">
                     <Phone size={16} />
                   </span>
-                  <span className="text-sm">+92 304 5280101</span>
+                  <span className="text-sm">{personalInfo.phone}</span>
                 </a>
-                <a href="https://linkedin.com/in/ehtashamfaryad" target="_blank" rel="noreferrer" className="group flex items-center gap-4 hover:text-accent transition-colors">
+                <a href={personalInfo.linkedin} target="_blank" rel="noreferrer" className="group flex items-center gap-4 hover:text-accent transition-colors">
                   <span className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted group-hover:text-accent group-hover:border-accent transition-all">
                     <FaLinkedin size={16} />
                   </span>
-                  <span className="text-sm">linkedin.com/in/ehtashamfaryad</span>
+                  <span className="text-sm">{personalInfo.linkedin.replace('https://', '')}</span>
                 </a>
-                <a href="https://github.com/Ehtasham5" target="_blank" rel="noreferrer" className="group flex items-center gap-4 hover:text-accent transition-colors">
+                <a href={personalInfo.github} target="_blank" rel="noreferrer" className="group flex items-center gap-4 hover:text-accent transition-colors">
                   <span className="w-10 h-10 rounded-full border border-border flex items-center justify-center text-muted group-hover:text-accent group-hover:border-accent transition-all">
                     <FaGithub size={16} />
                   </span>
-                  <span className="text-sm">github.com/Ehtasham5</span>
+                  <span className="text-sm">{personalInfo.github.replace('https://', '')}</span>
                 </a>
               </div>
             </FadeIn>

@@ -4,9 +4,11 @@ import { Helmet } from 'react-helmet-async';
 import { ArrowLeft, ExternalLink, ArrowUpRight } from 'lucide-react';
 import { FaGithub } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import api from '../services/api';
+
 import { FadeIn } from '../components/ui/FadeIn';
 import { Button } from '../components/ui/Button';
+
+import { projects, personalInfo } from '../data/content';
 
 const ProjectDetail = () => {
   const { slug } = useParams();
@@ -15,15 +17,13 @@ const ProjectDetail = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    // Simulate slight network delay for realism
     const fetchProject = async () => {
-      try {
-        const { data } = await api.get(`/projects/slug/${slug}`);
-        setProject(data);
-      } catch (error) {
-        console.error('Error fetching project:', error);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const foundProject = projects.find(p => p.slug === slug);
+      setProject(foundProject);
+      setLoading(false);
     };
     fetchProject();
   }, [slug]);
@@ -52,7 +52,7 @@ const ProjectDetail = () => {
   return (
     <>
       <Helmet>
-        <title>{project.title} — Ehtasham Faryad</title>
+        <title>{project.title} — {personalInfo.shortName}</title>
         <meta name="description" content={project.summary} />
       </Helmet>
 
