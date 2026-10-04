@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #F6F4EF;
+    --foreground: #111111;
+    --accent: #154231;
+    --accent-hover: #1f6148;
+    --border: #e2dfd5;
+    --muted: #666666;
+  }
+
+  .dark {
+    --background: #0E0E0E;
+    --foreground: #F6F4EF;
+    --accent: #1B5E43;
+    --accent-hover: #26855e;
+    --border: #222222;
+    --muted: #999999;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased transition-colors duration-300;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  ::selection {
+    @apply bg-accent text-white;
+  }
+
+  /* Thin 1px hairline dividers */
+  hr {
+    @apply border-border;
+  }
+
+  /* Headings letter spacing */
+  h1, h2, h3 {
+    letter-spacing: -0.02em;
+  }
+
+  /* Links smooth underline */
+  a {
+    @apply transition-colors duration-200;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
